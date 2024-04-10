@@ -16,27 +16,33 @@ export default function Home() {
   const [hasPlayed, setHasPlayed] = useState<boolean>(false);
   const [small, setSmall] = useState<boolean>(false);
   useEffect(() => {
-    if (ran == 1) return;
-    ran++;
-    canvas = document.getElementById('game') as HTMLCanvasElement;
 
-    if (window.innerWidth < 600) {
+    canvas = document.getElementById('game') as HTMLCanvasElement;
+    if (window.outerWidth < 600) {
       canvas.width = CANVAS_WIDTH / 2;
       canvas.height = CANVAS_WIDTH / 2;
+      console.log(canvas.width, canvas.height);
       setSmall(true);
     } else {
       canvas.width = CANVAS_WIDTH;
       canvas.height = CANVAS_HEIGHT;
+      setSmall(false);
     }
     context = canvas.getContext('2d')!;
     const img = document.createElement("img");
     img.src = "/background.jpg";
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(img, 0, 0, canvas.height * bgHeightToWidth, canvas.height);
-    gameLoop();
     document.addEventListener("click", handleClick);
-
+    return () => {
+      document.removeEventListener("click", handleClick);
+    }
   }, []);
+  useEffect(() => {
+    if (ran == 1) return;
+    ran++;
+    gameLoop();
+  }, [])
   const handleClick = () => {
     if (game && !game.dead) {
       const pop = new Audio("/pop.mp3");
@@ -45,6 +51,7 @@ export default function Home() {
     }
   }
   const gameLoop = () => {
+    console.log(canvas.width, canvas.height);
     game?.update(canvas);
     game?.draw(canvas, context);
     requestAnimationFrame(gameLoop);
@@ -64,20 +71,30 @@ export default function Home() {
   }
 
   return (
-    <div className="w-screen h-auto text-white" style={{backgroundImage: `url("/camo.webp")`}}>
+    <div className="w-screen h-auto min-h-screen text-white" style={{backgroundImage: `url("/camo.webp")`}}>
       <div className="flex flex-row justify-center items-center">
-        {small && <img src="/911.gif" alt="911 GIF" />}
+        {!small && <img src="/911.gif" alt="911 GIF" />}
         <img src="/osema_banner_2.png" alt="Osema Banner" />
-        {small && <img src="/911.gif" alt="911 GIF" />}
+        {!small && <img src="/911.gif" alt="911 GIF" />}
       </div>
-      <p className="text-center font-extrabold text-xl md:text-2xl lg:text-4xl">Buy $OSEMA for a safe flight!</p>
-      <div className="flex flex-row justify-center items-center md:gap-2 lg:gap-4 my-2">
-        <BasicLink text="Twitter" to="https://twitter.com/BenLodenSolana" />
-        <BasicLink text="Chart" to="chart" />
-        <BasicLink text="Telegram" to="https://t.me/+atpmkA_e-FY3YWRh" />
-      </div>
+      <p className="text-center font-extrabold text-xl md:text-2xl lg:text-4xl">Plez buy $OSEMA Allehu Ackbor</p>
+      {small ? 
+        <div className="flex flex-col justify-center items-center gap-2">
+            <BasicLink text="Twitter" to="https://twitter.com/BenLodenSolana" />
+          <div className="flex flex-row justify-center items-center gap-2">
+            <BasicLink text="Chart" to="chart" />
+            <BasicLink text="Telegram" to="https://t.me/+atpmkA_e-FY3YWRh" />
+          </div>
+        </div>
+        :
+        <div className="flex flex-row justify-center items-center md:gap-2 lg:gap-4 my-2">
+          <BasicLink text="Twitter" to="https://twitter.com/BenLodenSolana" />
+          <BasicLink text="Chart" to="chart" />
+          <BasicLink text="Telegram" to="https://t.me/+atpmkA_e-FY3YWRh" />
+        </div>
+      }
       <div className="flex justify-center items-center w-full">
-        <div className="w-auto h-auto relative mb-10">
+        <div className="w-auto h-auto relative my-10">
           <canvas id="game" className="border border-black" />
           {isPlaying &&
           <div className="absolute flex justify-center items-center top-0 left-0 w-full mt-2 md:mt-6 lg:mt-8">
@@ -97,8 +114,8 @@ export default function Home() {
             <div className="w-[200px] md:w-[300px] h-36 md:h-44 lg:h-52 rounded-lg flex flex-col justify-center items-center bg-cover" style={{backgroundImage: `url("/murica_waving.gif")`}}>
                 <p className='font-extrabold text-sm md:text-lg lg:text-xl'>You scored: {score} </p>
             </div>
-            <button onClick={play} className="w-32 text-center h-16 bg-white rounded-lg font-extrabold text-4xl text-black hover:brightness-90 active:brightness-75 hover:cursor-pointer">
-              {`\u25B6`}
+            <button onClick={play} className="text-center bg-white rounded-lg p-4 font-extrabold text-sm md:text-base lg:text-lg text-black hover:brightness-90 active:brightness-75 hover:cursor-pointer">
+              {`Play again`}
             </button>
           </div>
         }
