@@ -1,118 +1,96 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
+import Game, { bgHeightToWidth } from '@/components/game';
+import { useEffect, useRef, useState } from 'react';
 
-const inter = Inter({ subsets: ["latin"] });
+let canvas: HTMLCanvasElement;
+let context: CanvasRenderingContext2D;
+
+const CANVAS_WIDTH = 600;
+const CANVAS_HEIGHT = 600;
+let game: Game;
+let ran = 0;
 
 export default function Home() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [score, setScore] = useState<number>(0);
+  const [hasPlayed, setHasPlayed] = useState<boolean>(false);
+  useEffect(() => {
+    if (ran == 1) return;
+    ran++;
+    canvas = document.getElementById('game') as HTMLCanvasElement;
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+    context = canvas.getContext('2d')!;
+    const img = document.createElement("img");
+    img.src = "/background.jpg";
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(img, 0, 0, canvas.height * bgHeightToWidth, canvas.height);
+    gameLoop();
+    document.addEventListener("click", handleClick);
+
+  }, []);
+  const handleClick = () => {
+    if (game && !game.dead) {
+      const pop = new Audio("/pop.mp3");
+      pop.play();
+      game?.plane?.jump();
+    }
+  }
+  const gameLoop = () => {
+    game?.update(canvas);
+    game?.draw(canvas, context);
+    requestAnimationFrame(gameLoop);
+  };
+  const play = () => {
+    setIsPlaying(true);
+    setScore(0);
+    game = new Game(canvas, end, () => {
+      setScore(score => score + 1);
+    });
+  }
+  const end = () => {
+    setIsPlaying(false);
+    setHasPlayed(true);
+    const allahu_akbar = new Audio("/allahu_akbar.mp3");
+    allahu_akbar.play();
+  }
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className="w-screen h-screen text-white" style={{backgroundImage: `url("/camo.webp")`}}>
+      <div className="flex flex-row justify-center items-center">
+        <img src="/911.gif" alt="911 GIF" />
+        <img src="/osema_banner_2.png" alt="Osema Banner" />
+        <img src="/911.gif" alt="911 GIF" />
+      </div>
+      <p className="text-center font-extrabold text-4xl">Buy $OSEMA for a safe flight!</p>
+      <div className="flex justify-center items-center w-full">
+        <div className="w-auto h-auto relative">
+          <canvas id="game" className="border border-black" />
+          {isPlaying &&
+          <div className="absolute flex justify-center items-center top-0 left-0 w-full mt-8">
+            <p className=" align-center text-center font-extrabold text-3xl p-4 bg-red-600 rounded-lg text-black">{score}</p>
+          </div>
+        }
+        {!isPlaying && !hasPlayed &&
+        <>
+          <button onClick={play} className="absolute font-extrabold text-2xl  bg-blue-400 px-8 py-2 rounded z-10 bg-cover" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)", backgroundImage: `url("/murica_waving.gif")`}}>
+            Play
+          </button>
+          <div className="absolute w-full h-full top-0 left-0 bg-cover" style={{backgroundImage: `url("/background.png")`}}></div>
+          </>
+        }
+        {!isPlaying && hasPlayed &&
+          <div className="absolute flex flex-col justify-center items-center gap-10" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)"}}>
+            <div className="w-[300px] h-52 rounded-lg flex flex-col justify-center items-center bg-cover" style={{backgroundImage: `url("/murica_waving.gif")`}}>
+                <p className='font-extrabold text-xl'>You scored: {score} </p>
+            </div>
+            <button onClick={play} className="w-32 text-center h-16 bg-white rounded-lg font-extrabold text-4xl text-black hover:brightness-90 active:brightness-75 hover:cursor-pointer">
+              {`\u25B6`}
+            </button>
+          </div>
+        }
+      </div>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
