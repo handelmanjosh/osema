@@ -82,7 +82,7 @@ export default function Home() {
         <div className="flex flex-col justify-center items-center gap-2">
             <BasicLink text="Twitter" to="https://twitter.com/BenLodenSolana" />
           <div className="flex flex-row justify-center items-center gap-2">
-            <BasicLink text="Chart" to="chart" />
+            <BasicLink text="Chart" to="https://pump.fun/6iYBTV3ZpC8wuK9nVauNRR2AmqV7jAzaDr54HfacAPow" />
             <BasicLink text="Telegram" to="https://t.me/+atpmkA_e-FY3YWRh" />
           </div>
         </div>
