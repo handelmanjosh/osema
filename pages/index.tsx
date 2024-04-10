@@ -1,6 +1,5 @@
 import BasicLink from '@/components/BasicLink';
 import Game, { bgHeightToWidth } from '@/components/game';
-import MuricaButton from '@/components/MuricaButton';
 import { useEffect, useRef, useState } from 'react';
 
 let canvas: HTMLCanvasElement;
