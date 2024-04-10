@@ -29,7 +29,7 @@ export default class Game {
         for (let i = 0; i < 2; i++) {
             this.pillars.push(
                 new Pillar(
-                    (i + 2) * 350,
+                    (i + 2) * (canvas.width == 600 ? 350 : 175),
                     randomBetween(canvas.height / 6, canvas.height * 5 / 6)
                 )
             )

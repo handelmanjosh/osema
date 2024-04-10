@@ -1,4 +1,6 @@
+import BasicLink from '@/components/BasicLink';
 import Game, { bgHeightToWidth } from '@/components/game';
+import MuricaButton from '@/components/MuricaButton';
 import { useEffect, useRef, useState } from 'react';
 
 let canvas: HTMLCanvasElement;
@@ -13,12 +15,20 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [score, setScore] = useState<number>(0);
   const [hasPlayed, setHasPlayed] = useState<boolean>(false);
+  const [small, setSmall] = useState<boolean>(false);
   useEffect(() => {
     if (ran == 1) return;
     ran++;
     canvas = document.getElementById('game') as HTMLCanvasElement;
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
+
+    if (window.innerWidth < 600) {
+      canvas.width = CANVAS_WIDTH / 2;
+      canvas.height = CANVAS_WIDTH / 2;
+      setSmall(true);
+    } else {
+      canvas.width = CANVAS_WIDTH;
+      canvas.height = CANVAS_HEIGHT;
+    }
     context = canvas.getContext('2d')!;
     const img = document.createElement("img");
     img.src = "/background.jpg";
@@ -55,24 +65,29 @@ export default function Home() {
   }
 
   return (
-    <div className="w-screen h-screen text-white" style={{backgroundImage: `url("/camo.webp")`}}>
+    <div className="w-screen h-auto text-white" style={{backgroundImage: `url("/camo.webp")`}}>
       <div className="flex flex-row justify-center items-center">
-        <img src="/911.gif" alt="911 GIF" />
+        {small && <img src="/911.gif" alt="911 GIF" />}
         <img src="/osema_banner_2.png" alt="Osema Banner" />
-        <img src="/911.gif" alt="911 GIF" />
+        {small && <img src="/911.gif" alt="911 GIF" />}
       </div>
-      <p className="text-center font-extrabold text-4xl">Buy $OSEMA for a safe flight!</p>
+      <p className="text-center font-extrabold text-xl md:text-2xl lg:text-4xl">Buy $OSEMA for a safe flight!</p>
+      <div className="flex flex-row justify-center items-center md:gap-2 lg:gap-4 my-2">
+        <BasicLink text="Twitter" to="https://twitter.com/BenLodenSolana" />
+        <BasicLink text="Chart" to="chart" />
+        <BasicLink text="Telegram" to="https://t.me/+atpmkA_e-FY3YWRh" />
+      </div>
       <div className="flex justify-center items-center w-full">
-        <div className="w-auto h-auto relative">
+        <div className="w-auto h-auto relative mb-10">
           <canvas id="game" className="border border-black" />
           {isPlaying &&
-          <div className="absolute flex justify-center items-center top-0 left-0 w-full mt-8">
-            <p className=" align-center text-center font-extrabold text-3xl p-4 bg-red-600 rounded-lg text-black">{score}</p>
+          <div className="absolute flex justify-center items-center top-0 left-0 w-full mt-2 md:mt-6 lg:mt-8">
+            <p className=" align-center text-center font-extrabold text-lg md:text-xl lg:text-3xl p-4 bg-red-600 rounded-lg text-black">{score}</p>
           </div>
         }
         {!isPlaying && !hasPlayed &&
         <>
-          <button onClick={play} className="absolute font-extrabold text-2xl  bg-blue-400 px-8 py-2 rounded z-10 bg-cover" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)", backgroundImage: `url("/murica_waving.gif")`}}>
+          <button onClick={play} className="absolute font-extrabold text-base md:text-lg lg:text-2xl  bg-blue-400 px-8 py-2 rounded z-10 bg-cover" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)", backgroundImage: `url("/murica_waving.gif")`}}>
             Play
           </button>
           <div className="absolute w-full h-full top-0 left-0 bg-cover" style={{backgroundImage: `url("/background.png")`}}></div>
@@ -80,8 +95,8 @@ export default function Home() {
         }
         {!isPlaying && hasPlayed &&
           <div className="absolute flex flex-col justify-center items-center gap-10" style={{top: "50%", left: "50%", transform: "translate(-50%, -50%)"}}>
-            <div className="w-[300px] h-52 rounded-lg flex flex-col justify-center items-center bg-cover" style={{backgroundImage: `url("/murica_waving.gif")`}}>
-                <p className='font-extrabold text-xl'>You scored: {score} </p>
+            <div className="w-[200px] md:w-[300px] h-36 md:h-44 lg:h-52 rounded-lg flex flex-col justify-center items-center bg-cover" style={{backgroundImage: `url("/murica_waving.gif")`}}>
+                <p className='font-extrabold text-sm md:text-lg lg:text-xl'>You scored: {score} </p>
             </div>
             <button onClick={play} className="w-32 text-center h-16 bg-white rounded-lg font-extrabold text-4xl text-black hover:brightness-90 active:brightness-75 hover:cursor-pointer">
               {`\u25B6`}
